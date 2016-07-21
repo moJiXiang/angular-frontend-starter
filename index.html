@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en" ng-app='app'>
+<head>
+  <meta charset="UTF-8">
+  <title>Document</title>
+</head>
+<body>
+  <div ng-controller='AppCtrl'>
+    <ul ng-repeat="book in books">
+      <li>{{book.name}}</li>
+    </ul>
+  </div>
+</body>
+<script src="node_modules/socket.io-client/socket.io.js"></script>
+<script src="node_modules/angular/angular.js"></script>
+<script src="node_modules/angular-socket-io/socket.js"></script>
+<script type="text/javascript">
+  angular.module('app', ['btford.socket-io'])
+    .factory('socket', function(socketFactory) {
+      var myIoSocket = io.connect('http://localhost:8000');
+
+      mySocket = socketFactory({
+        ioSocket: myIoSocket
+      });
+
+      return mySocket;
+    })
+    .controller('AppCtrl', function($scope, socket) {
+      $scope.books = [];
+      socket.on('book:save',function(data){
+        $scope.books.push(data);
+      })
+
+      socket.on('book:remove',function(data){
+        console.log(data);
+        $scope.books.splice($scope.books.indexOf(data), 1);
+      })
+    })
+</script>
+</html>
